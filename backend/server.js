@@ -1,10 +1,8 @@
-// require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
 const jwt = require('jsonwebtoken');
-
-
 
 
 
@@ -21,10 +19,10 @@ app.use(express.json());
 
 // MySQL connection
 const db = mysql.createConnection({
-  host: 'mysql.railway.internal',
-  user: 'root',
-  password: 'jjSpHLYXEpwueMfXkjBBTNPNopMuWVGx',
-  database: 'railway'
+  host: 'localhost',
+  user: 'divya',
+  password: 'divya123',
+  database: 'hardwarestore_1'
 });
 
 db.connect((err) => {
