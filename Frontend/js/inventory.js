@@ -1,8 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-    //loading modal
     const editModal = new bootstrap.Modal(document.getElementById("editModal"));
 
-    // Function to load inventory data from the backend
+
     function loadInventoryData() {
         const table = document.getElementById('inventory-item');
 
@@ -24,17 +23,12 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.json())
             .then(data => {
                 console.log("Loaded Inventory Data: ", data);
-
-                // Clear the table before adding data
                 table.innerHTML = "";
 
-                // Checking if we have data to display
                 if (data.length === 0) {
                     console.log("No inventory data found.");
                     return;
                 }
-
-                // Calling the displayProducts function to show the fetched data
                 displayProducts(data);
             })
             .catch(error => {
@@ -66,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Load data when the page loads
+
     loadInventoryData();
 
     // Add Item Functionality
@@ -92,10 +86,9 @@ document.addEventListener("DOMContentLoaded", function () {
             price: parseFloat(price)
         };
 
-        // Get the token from localStorage
         const token = localStorage.getItem('authToken');
 
-        // Send a POST request to add the new item, passing the token in the Authorization header
+        // Sending a POST request to add the new item, passing the token in the Authorization header
         fetch('http://localhost:3000/products', {
             method: 'POST',
             headers: {
@@ -107,11 +100,10 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.json())
             .then(data => {
                 console.log('Product Added:', data);
-                loadInventoryData();  // Reload the inventory after adding a new item
+                loadInventoryData();
             })
             .catch(error => console.error('Error adding item:', error));
 
-        // Reset the form
         this.reset();
         this.classList.remove('was-validated');
     });
@@ -121,7 +113,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (e.target.classList.contains('btn-danger')) {
             const productId = e.target.getAttribute('data-id');
 
-            // Get the token from localStorage
             const token = localStorage.getItem('authToken');
 
             // Send a DELETE request to delete the item, passing the token in the Authorization header
@@ -135,11 +126,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (!response.ok) {
                         throw new Error(`Failed to delete item: ${response.status}`);
                     }
-                    return response.json(); // Parse the JSON response
+                    return response.json();
                 })
                 .then(data => {
                     alert(data.message || "Item deleted successfully!");
-                    loadInventoryData(); // Reload the inventory after deletion
+                    loadInventoryData();
                 })
                 .catch(error => {
                     console.error('Error deleting item:', error);
@@ -152,7 +143,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (e.target.classList.contains("edit-btn")) {
             const productId = e.target.getAttribute("data-id");
 
-            // Get the token from localStorage
             const token = localStorage.getItem('authToken');
 
             // Fetch the specific product data
@@ -163,7 +153,6 @@ document.addEventListener("DOMContentLoaded", function () {
             })
                 .then(response => response.json())
                 .then(item => {
-                    // Populate the edit form
                     document.getElementById("editProductId").value = item.id;
                     document.getElementById("editItemName").value = item.name;
                     document.getElementById("editDescription").value = item.description;
@@ -171,7 +160,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.getElementById("editQuantity").value = item.quantity;
                     document.getElementById("editPrice").value = item.price;
 
-                    // Show the modal
                     editModal.show();
                 })
                 .catch(error => {
@@ -222,6 +210,52 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
+
+    // Function to search for the inventory items
+    function filterInventory(searchTerm) {
+        const inventoryTable = document.getElementById('inventory-item');
+        if (!inventoryTable) {
+            console.error("Inventory table not found!");
+            return;
+        }
+
+        const rows = Array.from(inventoryTable.rows); // Convert HTMLCollection to an array
+        const searchTermLower = searchTerm.toLowerCase();
+
+        rows.forEach(row => {
+            const itemNameCell = row.cells[1]; // Get the item name cell
+            const descriptionCell = row.cells[2]; // Get the description cell
+
+            if (itemNameCell && descriptionCell) {
+                const itemName = itemNameCell.textContent.toLowerCase();
+                const description = descriptionCell.textContent.toLowerCase();
+
+                if (searchTerm === "" || itemName.includes(searchTermLower) || description.includes(searchTermLower)) {
+                    row.style.display = ""; // Show the row if it matches or the search term is empty
+                } else {
+                    row.style.display = "none"; // Hide the row if it doesn't match
+                }
+            } else {
+                console.warn("Item name or description not found in the inventory.");
+            }
+        });
+    }
+
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+
+    if (searchInput && searchBtn) {
+
+        searchInput.addEventListener('input', function () {
+            filterInventory(this.value);
+        });
+
+        searchBtn.addEventListener('click', function () {
+            filterInventory(searchInput.value);
+        });
+    } else {
+        console.error("Search input or button not found!");
+    }
 
 
 });

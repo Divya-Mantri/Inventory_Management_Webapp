@@ -5,19 +5,15 @@ const mysql = require('mysql2');
 const jwt = require('jsonwebtoken');
 
 
-
 const app = express();
 const port = 3000;
 
 
-
-// Enable CORS for all origins
 app.use(cors());
 
-// Enable JSON parsing
 app.use(express.json());
 
-// MySQL connection
+
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'divya',
@@ -39,18 +35,18 @@ const verifyToken = (req, res, next) => {
   if (!authHeader) {
     return res.status(401).json({ message: 'No token provided' });
   }
-// Extract token from "Bearer <token>"
-  const token = authHeader.split(' ')[1]; 
+  // Extract token from "Bearer <token>"
+  const token = authHeader.split(' ')[1];
   jwt.verify(token, 'your_jwt_secret', (err, decoded) => {
     if (err) {
       return res.status(403).json({ message: 'Invalid token' });
     }
-    req.user = decoded; // Store the decoded user info for use in routes
-    next(); // Continue to the route
+    req.user = decoded;
+    next();
   });
 };
 
-// Root route
+
 app.get('/', (req, res) => {
   res.send('Welcome to the Inventory Management System!');
 });
@@ -91,7 +87,7 @@ app.get('/products', (req, res) => {
 });
 //  Get a specific product by ID
 app.get('/products/:id', (req, res) => {
-  const productId = req.params.id; // Get the ID from the URL 
+  const productId = req.params.id;
 
   const query = 'SELECT * FROM products WHERE id = ?';
   db.query(query, [productId], (err, results) => {
@@ -101,10 +97,10 @@ app.get('/products/:id', (req, res) => {
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ message: 'Product not found' }); 
+      return res.status(404).json({ message: 'Product not found' });
     }
 
-    res.json(results[0]); // Send the product as JSON
+    res.json(results[0]);
   });
 });
 
@@ -112,7 +108,7 @@ app.get('/products/:id', (req, res) => {
 app.post('/products', verifyToken, (req, res) => {
   const { name, price, quantity, description, category } = req.body;
 
-  // Check if all required fields are present
+
   if (!name || price === undefined || quantity === undefined || !description || !category) {
     return res.status(400).json({ message: 'All fields (name, price, quantity, description, category) are required' });
   }
@@ -146,23 +142,23 @@ app.delete('/products/:id', (req, res) => {
 
   const query = 'DELETE FROM products WHERE id = ?';
   db.query(query, [productId], (err, result) => {
-      if (err) {
-          console.error('Error deleting product:', err);
-          return res.status(500).json({ message: 'Database error' });
-      }
+    if (err) {
+      console.error('Error deleting product:', err);
+      return res.status(500).json({ message: 'Database error' });
+    }
 
-      if (result.affectedRows === 0) {
-          return res.status(404).json({ message: 'Product not found' });
-      }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
 
-      res.status(200).json({ message: 'Product deleted successfully' });
+    res.status(200).json({ message: 'Product deleted successfully' });
   });
 });
 
 //  Update a product by ID
 app.put('/products/:id', verifyToken, (req, res) => {
-  const productId = req.params.id; // Get the ID from the URL
-  const { name, price, quantity, description, category } = req.body; // Get the updated data from the request body
+  const productId = req.params.id;
+  const { name, price, quantity, description, category } = req.body;
 
   const query = 'UPDATE products SET name = ?, price = ?, quantity = ?, description = ?, category = ? WHERE id = ?';
   db.query(query, [name, price, quantity, description, category, productId], (err, result) => {

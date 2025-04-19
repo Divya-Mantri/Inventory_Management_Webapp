@@ -4,7 +4,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
 
-    // Validating the form fields
+    // Checking if username and password are empty
     if (!username || !password) {
         alert("Please fill in all fields.");
         return;
