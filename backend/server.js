@@ -5,9 +5,10 @@ const jwt = require('jsonwebtoken');
 
 
 
+
+
 const app = express();
 const port = 3000;
-
 
 
 
@@ -20,9 +21,9 @@ app.use(express.json());
 // MySQL connection
 const db = mysql.createConnection({
   host: 'localhost',
-  user: 'root',
-  password: 'divya',
-  database: 'inventory_db'
+  user: 'divya',
+  password: 'divya123',
+  database: 'hardwarestore_1'
 });
 
 db.connect((err) => {
